@@ -18,10 +18,11 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['user', 'artist'],
-    default: 'user',
+    enum: ['contributor', 'admin'], 
+    default: 'contributor',
   }
-});
+}, { timestamps: true });
+
 const User = mongoose.model('User', userSchema);
 
 module.exports = User;
