@@ -1,12 +1,12 @@
 const express = require('express');
-const authController = require('../controller/auth.controller');
-
 const router = express.Router();
 
-// The register route you already have
-router.post('/register', authController.registerUser);
+const { registerUser, loginUser, logoutUser } = require('../controller/auth.controller');
 
-// ADD THIS LINE: The new login route
-router.post('/login', authController.loginUser);
+router.post('/register', registerUser);
+router.post('/login', loginUser);
+
+// Naya Logout Route (GET request kyunki hum bas cookie clear kar rahe hain, koi data bhej nahi rahe)
+router.get('/logout', logoutUser);
 
 module.exports = router;

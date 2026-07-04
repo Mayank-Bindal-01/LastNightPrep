@@ -105,4 +105,17 @@ async function loginUser(req, res) {
   }
 }
 
-module.exports = { registerUser, loginUser };
+
+// Logout Controller
+const logoutUser = (req, res) => {
+  // 'token' naam ki cookie ko clear kar do
+  res.clearCookie('token', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict'
+  });
+
+  res.status(200).json({ message: 'Logged out successfully!' });
+};
+
+module.exports = { registerUser, loginUser, logoutUser };
