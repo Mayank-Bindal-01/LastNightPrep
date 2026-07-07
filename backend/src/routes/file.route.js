@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
 
 const { uploadFile, deleteFile, getAllFiles } = require('../controller/file.controller');
 const upload = require('../middleware/upload.middleware');

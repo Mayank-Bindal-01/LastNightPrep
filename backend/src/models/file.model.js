@@ -3,19 +3,33 @@ const mongoose = require('mongoose');
 const fileSchema = new mongoose.Schema({
   title: {
     type: String,
-    required: true,
+    required: true, 
   },
   subject: {
     type: String,
+    required: true, 
+  },
+  
+  applicableFor: [
+    {
+      branch: { type: String, required: true },
+      semester: { type: Number, required: true }
+    }
+  ],
+
+  fileType: {
+    type: String,
     required: true,
+    enum: ['notes', 'syllabus', 'question_paper', 'assignment'], 
+    default: 'notes'
   },
   fileUrl: {
     type: String,
-    required: true, // Yeh actual PDF ka link hoga
+    required: true, 
   },
   uploadedBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User', // Yeh batayega ki kis contributor/admin ne upload kiya
+    ref: 'User', 
     required: true
   }
 }, { timestamps: true });
