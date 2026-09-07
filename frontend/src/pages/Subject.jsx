@@ -61,7 +61,7 @@
 // export default Subject;
 
 import { useParams } from "react-router-dom";
-import subjects from "../data/subjects";
+import subjects from "../Data/Subjects";
 
 function Subject() {
   const { branchCode, semester, subjectName } = useParams();
@@ -89,7 +89,13 @@ function Subject() {
 
       <div className="subject-section">
         <h2>Syllabus</h2>
-        <a href={selectedSubject.syllabus}>View Syllabus</a>
+        {selectedSubject.syllabus && selectedSubject.syllabus !== "link" ? (
+          <a href={selectedSubject.syllabus} target="_blank" rel="noreferrer">
+            View Syllabus
+          </a>
+        ) : (
+          <p>Not uploaded</p>
+        )}
       </div>
 
       <div className="subject-section">

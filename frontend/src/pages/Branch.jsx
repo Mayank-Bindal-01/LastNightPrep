@@ -1,96 +1,60 @@
-
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import syllabus from "../data/syllabus";
+import api from "../api/axios";
+import FileCard from "../components/FileCard";
 
+function Branch() {
+  const { branchCode } = useParams();
+  const [files, setFiles] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
 
-function Branch(){
+  useEffect(() => {
+    let isCurrent = true;
 
-const {branchCode}=useParams();
+    async function loadSyllabuses() {
+      setIsLoading(true);
+      setError("");
 
+      try {
+        const { data } = await api.get("/files/all", {
+          params: { branch: branchCode, fileType: "syllabus" },
+        });
 
+        if (isCurrent) {
+          setFiles(data.files);
+        }
+      } catch (requestError) {
+        if (isCurrent) {
+          setError(requestError.response?.data?.message || "Unable to load syllabuses.");
+        }
+      } finally {
+        if (isCurrent) {
+          setIsLoading(false);
+        }
+      }
+    }
 
-const branchData = syllabus.find(
+    loadSyllabuses();
+    return () => {
+      isCurrent = false;
+    };
+  }, [branchCode]);
 
-(item)=>
+  return (
+    <div className="page">
+      <h1>{branchCode} Syllabus</h1>
 
-item.branch===branchCode
-
-);
-
-
-
-return(
-
-<div className="page">
-
-
-<h1>
-{branchCode} Syllabus
-</h1>
-
-
-
-<div className="branch-container">
-
-
-{
-
-branchData ?
-
-branchData.files.map((file,index)=>(
-
-
-<div className="branch-card" key={index}>
-
-
-<h3>
-{file.title}
-</h3>
-
-
-
-<a
-
-href={file.pdf}
-
-target="_blank"
-
-rel="noreferrer"
-
->
-
-Open PDF
-
-</a>
-
-
-
-</div>
-
-
-))
-
-
-:
-
-<h2>
-No Syllabus Uploaded
-</h2>
-
-
+      <div className="branch-container">
+        {isLoading && <p>Loading syllabuses...</p>}
+        {error && <p role="alert">{error}</p>}
+        {!isLoading && !error && files.length === 0 && <h2>No Syllabus Uploaded</h2>}
+        {files.map((file) => (
+          <FileCard key={file._id} file={file} />
+        ))}
+      </div>
+    </div>
+  );
 }
-
-
-
-</div>
-
-
-</div>
-
-)
-
-
-}
-
 
 export default Branch;

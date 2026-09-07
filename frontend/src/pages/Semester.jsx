@@ -1,7 +1,7 @@
 
 
 import { useParams } from "react-router-dom";
-import subjects from "../data/subjects";
+import subjects from "../Data/Subjects";
 import SubjectCard from "../components/SubjectCard";
 
 

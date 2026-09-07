@@ -5,6 +5,7 @@ import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import Branch from "./pages/Branch";
 import Subject from "./pages/Subject";
+import Semester from "./pages/Semester";
 
 import Register from "./pages/Register";
 import Login from "./pages/Login";
@@ -15,6 +16,7 @@ import ResetPassword from "./pages/ResetPassword";
 import SubjectSearch from "./components/SubjectSearch";
 
 import UploadFile from "./pages/UploadFile";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 
 function App(){
@@ -50,6 +52,11 @@ function App(){
         <Route
           path="/branch/:branchCode"
           element={<Branch/>}
+        />
+
+        <Route
+          path="/branch/:branchCode/semester/:semesterId"
+          element={<Semester/>}
         />
 
 
@@ -102,7 +109,11 @@ function App(){
 
         <Route
           path="/upload"
-          element={<UploadFile/>}
+          element={
+            <ProtectedRoute>
+              <UploadFile/>
+            </ProtectedRoute>
+          }
         />
 
 

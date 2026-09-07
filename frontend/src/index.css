@@ -244,6 +244,23 @@ body {
 
 }
 
+.nav-button {
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: 1px solid #2563eb;
+    background: transparent;
+    color: #e5e7eb;
+    cursor: pointer;
+    font-size: 17px;
+    font-weight: 600;
+    transition: .3s;
+}
+
+.nav-button:hover {
+    background: #2563eb;
+    color: white;
+}
+
 
 /* Login Signup Upload buttons */
 
@@ -1313,7 +1330,6 @@ body {
 
 
 }
-
 
 
 

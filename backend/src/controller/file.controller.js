@@ -2,6 +2,8 @@ const fileModel = require('../models/file.model');
 const cloudinary = require('cloudinary').v2;
 const streamifier = require('streamifier');
 
+const allowedFileTypes = new Set(['notes', 'syllabus', 'question_paper', 'assignment']);
+
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -21,6 +23,10 @@ const uploadFile = async (req, res) => {
       return res.status(400).json({ message: 'Title, subject, and applicableFor are required.' });
     }
 
+    if (fileType && !allowedFileTypes.has(fileType)) {
+      return res.status(400).json({ message: 'Invalid file type.' });
+    }
+
     // Multer 'applicableFor' (array) ko string bana deta hai, isliye isko wapas JSON/Array banayenge
     let parsedApplicableFor;
     try {
@@ -29,11 +35,21 @@ const uploadFile = async (req, res) => {
       return res.status(400).json({ message: 'Invalid format for applicableFor. Must be a valid JSON array.' });
     }
 
+    if (
+      !Array.isArray(parsedApplicableFor) ||
+      parsedApplicableFor.length === 0 ||
+      !parsedApplicableFor.every(({ branch, semester }) => branch && Number.isInteger(Number(semester)))
+    ) {
+      return res.status(400).json({
+        message: 'applicableFor must contain at least one branch and semester.',
+      });
+    }
+
     // Cloudinary Stream Upload logic
     const streamUpload = (req) => {
       return new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
-          { folder: 'latenightprep_notes' }, 
+          { folder: 'latenightprep_notes', resource_type: 'raw' },
           (error, result) => {
             if (result) {
               resolve(result);
@@ -55,6 +71,7 @@ const uploadFile = async (req, res) => {
       applicableFor: parsedApplicableFor, // Yahan hamara branch/sem ka array aayega
       fileType: fileType || 'notes', // Agar user ne fileType nahi bheja toh default 'notes'
       fileUrl: uploadResult.secure_url, 
+      cloudinaryPublicId: uploadResult.public_id,
       uploadedBy: req.user._id 
     });
 
@@ -80,14 +97,11 @@ const deleteFile = async (req, res) => {
       return res.status(404).json({ message: 'File not found!' });
     }
 
-    // Cloudinary delete logic
-    const urlArray = file.fileUrl.split('/');
-    const folderName = urlArray[urlArray.length - 2]; 
-    const fileNameWithExtension = urlArray[urlArray.length - 1]; 
-    const fileName = fileNameWithExtension.split('.')[0]; 
-    
-    const publicId = `${folderName}/${fileName}`; 
-    await cloudinary.uploader.destroy(publicId);
+    if (file.cloudinaryPublicId) {
+      await cloudinary.uploader.destroy(file.cloudinaryPublicId, {
+        resource_type: 'raw',
+      });
+    }
 
     // Database delete logic
     await fileModel.findByIdAndDelete(fileId);
@@ -109,14 +123,21 @@ const getAllFiles = async (req, res) => {
     
     let query = {}; // Khaali query matbal "sab kuch le aao"
 
-    // Agar branch aur sem aaye hain, toh $elemMatch ka use karke filter lagao
-    if (branch && semester) {
-      query.applicableFor = {
-        $elemMatch: { 
-          branch: branch, 
-          semester: Number(semester) 
-        }
-      };
+    const applicableForFilter = {};
+    if (branch) {
+      applicableForFilter.branch = branch;
+    }
+
+    if (semester !== undefined) {
+      const parsedSemester = Number(semester);
+      if (!Number.isInteger(parsedSemester)) {
+        return res.status(400).json({ message: 'Semester must be a whole number.' });
+      }
+      applicableForFilter.semester = parsedSemester;
+    }
+
+    if (Object.keys(applicableForFilter).length > 0) {
+      query.applicableFor = { $elemMatch: applicableForFilter };
     }
 
     // Agar specifically fileType manga hai (jaise sirf 'syllabus')

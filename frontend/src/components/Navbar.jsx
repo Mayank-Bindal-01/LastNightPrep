@@ -1,7 +1,19 @@
 import { Link } from "react-router-dom";
+import api from "../api/axios";
+import { useAuth } from "../context/auth-context";
 
 
 function Navbar(){
+
+const { user, logout } = useAuth();
+
+async function handleLogout() {
+try {
+  await api.post("/auth/logout");
+} finally {
+  logout();
+}
+}
 
 
 return(
@@ -32,6 +44,18 @@ Home
 Search
 </Link>
 
+{user ? (
+<>
+<Link to="/upload">
+Upload
+</Link>
+
+<button type="button" className="nav-button" onClick={handleLogout}>
+Logout
+</button>
+</>
+) : (
+<>
 <Link to="/login">
 Login
 </Link>
@@ -40,11 +64,8 @@ Login
 <Link to="/register">
 Sign Up
 </Link>
-
-
-<Link to="/upload">
-Upload
-</Link>
+</>
+)}
 
 
 </div>

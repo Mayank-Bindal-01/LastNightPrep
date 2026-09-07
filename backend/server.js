@@ -2,9 +2,21 @@ require('dotenv').config();
 const app = require('./src/app');
 const connectDB = require('./src/db/db');
 
-connectDB();
+const port = process.env.PORT || 3000;
 
+async function startServer() {
+  if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET is not configured');
+  }
 
-app.listen(3000, () => {
-  console.log('Server is running on port 3000');
+  await connectDB();
+
+  app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+  });
+}
+
+startServer().catch((error) => {
+  console.error('Unable to start the server:', error);
+  process.exit(1);
 });

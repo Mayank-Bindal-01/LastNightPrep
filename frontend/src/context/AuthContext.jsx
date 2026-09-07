@@ -1,37 +1,32 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { useState } from "react";
+import { AuthContext } from "./auth-context";
 
-const AuthContext = createContext();
+function getStoredUser() {
+  try {
+    const savedUser = localStorage.getItem("lateNightPrepUser");
+    return savedUser ? JSON.parse(savedUser) : null;
+  } catch {
+    localStorage.removeItem("lateNightPrepUser");
+    return null;
+  }
+}
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => {
-    const savedUser = localStorage.getItem("studyHubUser");
-    return savedUser ? JSON.parse(savedUser) : null;
-  });
+  const [user, setUser] = useState(getStoredUser);
 
   const login = (userData) => {
-    localStorage.setItem("studyHubUser", JSON.stringify(userData));
+    localStorage.setItem("lateNightPrepUser", JSON.stringify(userData));
     setUser(userData);
   };
 
   const logout = () => {
-    localStorage.removeItem("studyHubUser");
+    localStorage.removeItem("lateNightPrepUser");
     setUser(null);
   };
-
-  useEffect(() => {
-    const savedUser = localStorage.getItem("studyHubUser");
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
-  }, []);
 
   return (
     <AuthContext.Provider value={{ user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
-}
-
-export function useAuth() {
-  return useContext(AuthContext);
 }

@@ -1,4 +1,4 @@
-import {useEffect} from "react";
+import { useEffect, useRef, useState } from "react";
 import {useParams,useNavigate} from "react-router-dom";
 
 import api from "../api/axios";
@@ -10,6 +10,8 @@ function VerifyEmail(){
 const {token}=useParams();
 
 const navigate=useNavigate();
+const hasVerified = useRef(false);
+const [message, setMessage] = useState("Verifying email...");
 
 
 
@@ -17,6 +19,12 @@ useEffect(()=>{
 
 
 async function verify(){
+
+if (hasVerified.current) {
+return;
+}
+
+hasVerified.current = true;
 
 
 try{
@@ -28,7 +36,7 @@ await api.get(
 );
 
 
-alert(res.data.message);
+setMessage(res.data.message);
 
 
 navigate("/login");
@@ -39,8 +47,8 @@ navigate("/login");
 
 catch(error){
 
-alert(
-"Invalid verification link"
+setMessage(
+error.response?.data?.message || "Invalid verification link"
 );
 
 }
@@ -53,15 +61,13 @@ alert(
 verify();
 
 
-},[]);
+},[navigate, token]);
 
 
 
 return(
 
-<h1>
-Verifying Email...
-</h1>
+<h1>{message}</h1>
 
 )
 

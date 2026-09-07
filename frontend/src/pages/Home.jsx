@@ -130,8 +130,8 @@
 
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import Branches from "../data/Branches";
-import subjectsData from "../data/subjects";
+import Branches from "../Data/Branches";
+import subjectsData from "../Data/Subjects";
 
 
 function Home() {

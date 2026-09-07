@@ -1,12 +1,8 @@
 import { useState } from "react";
-import subjects from "../data/subjects";
+import subjects from "../Data/Subjects";
 
 
 function SubjectSearch() {
-
-  console.log("FUNCTION RUNNING");
-  console.log("All Subjects:", subjects);
-
 
   const [searchText, setSearchText] = useState("");
   const [searched, setSearched] = useState(false);
@@ -318,7 +314,6 @@ function SubjectSearch() {
 
 
 export default SubjectSearch;
-
 
 
 
