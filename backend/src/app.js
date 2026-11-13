@@ -21,6 +21,13 @@ app.use(cookieParser());
 app.use('/api/auth', authRoutes);
 app.use('/api/files', fileRoutes);
 
+app.get('/', (req, res) => {
+  res.status(200).json({
+    message: 'LateNightPrep API is running.',
+    frontend: process.env.CLIENT_URL || 'http://localhost:5173',
+  });
+});
+
 app.use((error, req, res, next) => {
   if (error instanceof multer.MulterError) {
     return res.status(400).json({ message: error.message });
